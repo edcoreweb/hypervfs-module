@@ -23,3 +23,13 @@ make build
 ```sh
 make clean
 ```
+
+# Insert
+```sh
+sudo insmod ./hypervfs.ko
+```
+
+# Remove
+```sh
+sudo rmmod hypervfs
+```
