@@ -21,7 +21,7 @@ static int hypervfs_fill_super(struct super_block *sb, void *session, int flags)
 	sb->s_blocksize_bits = fls(4096);
 	sb->s_blocksize = 1 << sb->s_blocksize_bits;
 	sb->s_magic = HYPERVFS_MAGIC;
-    sb->s_op = &hypervfs_super_ops;
+	sb->s_op = &hypervfs_super_ops;
 	// sb->s_xattr = v9fs_xattr_handlers;
 	sb->s_time_min = 0;
 
@@ -46,7 +46,7 @@ static struct dentry *hypervfs_mount(struct file_system_type *fs_type, int flags
 	umode_t mode = S_IRWXUGO | S_ISVTX;
 	int retval = 0;
 
-    // TODO: connect to server here, add private data
+	// TODO: connect to server here, add private data
 
 	sb = sget(fs_type, NULL, hypervfs_set_super, flags, NULL);
 	if (IS_ERR(sb)) {
@@ -59,7 +59,7 @@ static struct dentry *hypervfs_mount(struct file_system_type *fs_type, int flags
 		goto release_sb;
 
 
-    sb->s_d_op = &hypervfs_dentry_operations;
+	sb->s_d_op = &hypervfs_dentry_operations;
 
 	inode = hypervfs_get_inode(sb, S_IFDIR | mode, 0);
 	if (IS_ERR(inode)) {
@@ -74,8 +74,8 @@ static struct dentry *hypervfs_mount(struct file_system_type *fs_type, int flags
 	}
 
 	sb->s_root = root;
-    // TODO: stat the root path and fill the inode
-    // retval = stat_inode(d_inode(root));
+	// TODO: stat the root path and fill the inode
+	// retval = stat_inode(d_inode(root));
 
 	return dget(sb->s_root);
 
@@ -91,7 +91,7 @@ static const struct super_operations hypervfs_super_ops = {
 	.alloc_inode = hypervfs_alloc_inode,
 	.free_inode = hypervfs_free_inode,
 	.statfs = simple_statfs,
-    .drop_inode = generic_drop_inode,
+	.drop_inode = generic_drop_inode,
 	.evict_inode = hypervfs_evict_inode,
 };
 
