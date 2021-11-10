@@ -1,8 +1,11 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
+#include <linux/buffer_head.h>
 #include <linux/net.h>
 #include <linux/vm_sockets.h>
-#include <linux/ipv6.h>
+#include <linux/in.h>
+#include <linux/nsproxy.h>
+#include <linux/errno.h>
 #include "hypervfs.h"
 
 #define PORT_NUM 5001
@@ -15,7 +18,7 @@ static struct socket *change_socket = NULL;
 static struct socket *hypervfs_connect_socket(void)
 {
 	int err;
-	struct socket *csocket = NULL;
+	struct socket *csocket;
 	struct sockaddr_vm addr = { 0 };
 
 	addr.svm_family = AF_VSOCK;
@@ -24,15 +27,15 @@ static struct socket *hypervfs_connect_socket(void)
 
 	err = __sock_create(
 		current->nsproxy->net_ns,
-		AF_VSOCK,
+		PF_VSOCK,
 		SOCK_STREAM,
-		IPPROTO_TCP,
+		PF_VSOCK,
 		&csocket,
 		1
 	);
 
 	if (err) {
-		pr_err("%s (%d): problem creating socket\n", __func__, task_pid_nr(current));
+		pr_err("%s (%d): problem creating socket\n - %d", __func__, task_pid_nr(current), err);
 		return ERR_PTR(err);
 	}
 

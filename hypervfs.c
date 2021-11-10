@@ -81,11 +81,11 @@ static void hypervfs_destroy_inode_cache(void)
 static int __init hypervfs_init(void)
 {
 	int err;
-	pr_info("Installing v9fs 9p2000 file system support\n");
+	pr_info("Installing hypervfs file system support\n");
 
 	err = hypervfs_init_inode_cache();
 	if (err < 0) {
-		pr_err("Failed to register v9fs for caching\n");
+		pr_err("Failed to register hypervfs for caching\n");
 		return err;
 	}
 
@@ -113,8 +113,7 @@ out_cache:
 }
 
 /**
- * exit_v9fs - shutdown module
- *
+ * Shutdown module
  */
 static void __exit hypervfs_exit(void)
 {

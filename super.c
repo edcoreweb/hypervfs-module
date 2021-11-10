@@ -22,7 +22,7 @@ static int hypervfs_fill_super(struct super_block *sb, void *session, int flags)
 	sb->s_blocksize = 1 << sb->s_blocksize_bits;
 	sb->s_magic = HYPERVFS_MAGIC;
 	sb->s_op = &hypervfs_super_ops;
-	// sb->s_xattr = v9fs_xattr_handlers;
+	// sb->s_xattr = hypervfs_xattr_handlers;
 	sb->s_time_min = 0;
 
 	ret = super_setup_bdi(sb);
