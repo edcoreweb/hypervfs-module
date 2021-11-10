@@ -26,10 +26,10 @@ make clean
 
 # Insert
 ```sh
-sudo insmod ./hypervfs.ko
+sudo insmod ./hyperv.ko
 ```
 
 # Remove
 ```sh
-sudo rmmod hypervfs
+sudo rmmod ./hyperv.kp
 ```
