@@ -6,7 +6,8 @@ hyperv-objs := \
 	inode.o \
 	dentry.o \
 	file.o \
-	dir.o
+	dir.o \
+	client.o
 
 all:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules

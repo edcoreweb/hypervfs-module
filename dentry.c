@@ -26,7 +26,6 @@ static int hypervfs_lookup_revalidate(struct dentry *dentry, unsigned int flags)
 
 		if (retval < 0)
 			return retval;
-		
 	}
 
 out_valid:

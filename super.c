@@ -47,6 +47,9 @@ static struct dentry *hypervfs_mount(struct file_system_type *fs_type, int flags
 	int retval = 0;
 
 	// TODO: connect to server here, add private data
+	retval = hypervfs_op_connect();
+	if (retval)
+		goto out;
 
 	sb = sget(fs_type, NULL, hypervfs_set_super, flags, NULL);
 	if (IS_ERR(sb)) {
@@ -57,7 +60,6 @@ static struct dentry *hypervfs_mount(struct file_system_type *fs_type, int flags
 	retval = hypervfs_fill_super(sb, NULL, flags);
 	if (retval)
 		goto release_sb;
-
 
 	sb->s_d_op = &hypervfs_dentry_operations;
 

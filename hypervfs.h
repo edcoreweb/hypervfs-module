@@ -11,3 +11,6 @@ struct inode *hypervfs_alloc_inode(struct super_block *sb);
 void hypervfs_free_inode(struct inode *inode);
 struct inode *hypervfs_get_inode(struct super_block *sb, umode_t mode, dev_t);
 void hypervfs_evict_inode(struct inode *inode);
+
+// client ops
+int hypervfs_op_connect(void);
