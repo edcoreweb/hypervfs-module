@@ -122,8 +122,8 @@ void hypervfs_op_close(void)
 		hypervfs_socket_destroy(pos);
 	}
 
-	// if (change_socket) {
-	// 	hypervfs_socket_destroy(change_socket);
-	//  change_socket = NULL:
-	// }
+	if (change_socket) {
+		hypervfs_socket_destroy(change_socket);
+		change_socket = NULL;
+	}
 }
