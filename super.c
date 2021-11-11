@@ -82,12 +82,21 @@ static struct dentry *hypervfs_mount(struct file_system_type *fs_type, int flags
 	return dget(sb->s_root);
 
 out:
+	hypervfs_op_close();
 	return ERR_PTR(retval);
 
 release_sb:
+	hypervfs_op_close();
 	deactivate_locked_super(sb);
 	return ERR_PTR(retval);
 }
+
+static void hypervfs_kill_sb(struct super_block *sb)
+{
+	hypervfs_op_close();
+	kill_anon_super(sb);
+}
+
 
 static const struct super_operations hypervfs_super_ops = {
 	.alloc_inode = hypervfs_alloc_inode,
@@ -100,7 +109,7 @@ static const struct super_operations hypervfs_super_ops = {
 struct file_system_type hypervfs_fs_type = {
 	.name = "hyperv",
 	.mount = hypervfs_mount,
-	.kill_sb = kill_anon_super,
+	.kill_sb = hypervfs_kill_sb,
 	.owner = THIS_MODULE,
 	.fs_flags = FS_RENAME_DOES_D_MOVE,
 };

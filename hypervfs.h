@@ -14,3 +14,4 @@ void hypervfs_evict_inode(struct inode *inode);
 
 // client ops
 int hypervfs_op_connect(void);
+void hypervfs_op_close(void);

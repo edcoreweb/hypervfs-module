@@ -6,16 +6,43 @@
 #include <linux/in.h>
 #include <linux/nsproxy.h>
 #include <linux/errno.h>
+#include <linux/list.h>
+#include <linux/slab.h>
 #include "hypervfs.h"
 
 #define PORT_NUM 5001
 #define SOCKET_NUM 4
 #define MAX_SOCK_BUF (1024*1024)
 
-static struct socket *sockets[SOCKET_NUM] = { NULL };
-static struct socket *change_socket = NULL;
+struct hypervfs_socket {
+	struct socket *csocket;
+	struct list_head list;
+};
 
-static struct socket *hypervfs_connect_socket(void)
+// static DEFINE_SPINLOCK(sockets_lock);
+static LIST_HEAD(sockets);
+static struct hypervfs_socket *change_socket = NULL;
+
+static struct hypervfs_socket *hypervfs_socket_init(struct socket *csocket)
+{
+	struct hypervfs_socket *socket;
+	socket = (struct hypervfs_socket *)kmalloc(sizeof(socket), GFP_KERNEL);
+
+	if (!socket)
+		return ERR_PTR(-ENOMEM);
+
+	socket->csocket = csocket;
+
+	return socket;
+}
+
+static void hypervfs_socket_destroy(struct hypervfs_socket *socket)
+{
+	sock_release(socket->csocket);
+	// kfree(socket);
+}
+
+static struct hypervfs_socket *hypervfs_connect_socket(void)
 {
 	int err;
 	struct socket *csocket;
@@ -53,19 +80,47 @@ static struct socket *hypervfs_connect_socket(void)
 		return ERR_PTR(err);
 	}
 
-	return csocket;
+	return hypervfs_socket_init(csocket);
 }
 
 int hypervfs_op_connect()
 {
-	
 	int i;
+	int err = 0; 
+
 	for (i = 0; i < SOCKET_NUM; i++) {
-		sockets[i] = hypervfs_connect_socket();
+		struct hypervfs_socket *socket = hypervfs_connect_socket();
+		if (IS_ERR(socket)) {
+			err = PTR_ERR(socket);
+			goto out;
+		}
+
+
+		list_add(&socket->list, &sockets);
 	}
 
 	// one more socket for change detection
 	change_socket = hypervfs_connect_socket();
+	if (IS_ERR(change_socket)) {
+		err = PTR_ERR(change_socket);
+		goto out;
+	}
 
-	return 0;
+out:
+	hypervfs_op_close();
+	return err;
+}
+
+void hypervfs_op_close(void)
+{
+	struct hypervfs_socket *pos, *n;
+
+	list_for_each_entry_safe(pos, n, &sockets, list) {
+		list_del(&pos->list);
+		hypervfs_socket_destroy(pos);
+	}
+
+	if (change_socket) {
+		hypervfs_socket_destroy(change_socket);
+	}
 }
