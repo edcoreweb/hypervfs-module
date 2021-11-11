@@ -38,8 +38,9 @@ static struct hypervfs_socket *hypervfs_socket_init(struct socket *csocket)
 
 static void hypervfs_socket_destroy(struct hypervfs_socket *socket)
 {
+	pr_info("%s (%d): cleaning up socket - %d\n",  __func__, task_pid_nr(current), socket->csocket->state);
 	sock_release(socket->csocket);
-	// kfree(socket);
+	kfree(socket);
 }
 
 static struct hypervfs_socket *hypervfs_connect_socket(void)
@@ -72,7 +73,6 @@ static struct hypervfs_socket *hypervfs_connect_socket(void)
 		sizeof(addr),
 		0
 	);
-	
 
 	if (err < 0) {
 		pr_err("%s (%d): problem connecting socket to %d\n",  __func__, task_pid_nr(current), addr.svm_port);
@@ -106,6 +106,8 @@ int hypervfs_op_connect()
 		goto out;
 	}
 
+	return err;
+
 out:
 	hypervfs_op_close();
 	return err;
@@ -120,7 +122,8 @@ void hypervfs_op_close(void)
 		hypervfs_socket_destroy(pos);
 	}
 
-	if (change_socket) {
-		hypervfs_socket_destroy(change_socket);
-	}
+	// if (change_socket) {
+	// 	hypervfs_socket_destroy(change_socket);
+	//  change_socket = NULL:
+	// }
 }
